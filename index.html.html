@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Balloon Counting Game</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      overflow: hidden;
+      background: linear-gradient(to bottom, #87CEEB, #B0E0E6);
+      animation: skyAnimation 10s infinite alternate;
+    }
+
+    @keyframes skyAnimation {
+      0% { background: #87CEEB; }
+      100% { background: #B0E0E6; }
+    }
+
+    h1 {
+      color: #FFD700;
+      text-shadow: 2px 2px 4px #000;
+      font-size: 40px;
+      margin-top: 20px;
+    }
+
+    .balloons {
+      position: relative;
+      height: 70vh;
+      overflow: hidden;
+    }
+
+    .balloon {
+      position: absolute;
+      width: 100px;
+      height: 120px;
+      background: red;
+      border-radius: 50%;
+      animation: float 10s infinite;
+      bottom: -150px;
+      cursor: pointer;
+    }
+
+    .balloon::after {
+      content: '';
+      position: absolute;
+      width: 2px;
+      height: 100px;
+      background: #000;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .balloon.red { background: #FF0000; }
+    .balloon.blue { background: #0000FF; }
+    .balloon.green { background: #00FF00; }
+    .balloon.yellow { background: #FFFF00; }
+    .balloon.purple { background: #800080; }
+    .balloon.orange { background: #FFA500; }
+    .balloon.pink { background: #FFC0CB; }
+    .balloon.cyan { background: #00FFFF; }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-100vh) rotate(10deg); }
+      100% { transform: translateY(0) rotate(0); }
+    }
+
+    .input-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #FFD700;
+      background: white;
+      color: #000;
+      margin: 5px;
+      width: 200px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #FFD700;
+      background: #4CAF50;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .result-box {
+      padding: 10px;
+      font-size: 20px;
+      font-weight: bold;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+      background: white;
+      color: #000;
+      margin: 10px auto;
+      width: 300px;
+      min-height: 50px;
+    }
+
+    .creator {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      font-size: 16px;
+      color: #FFD700;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .score {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 20px;
+      color: #FFD700;
+      text-shadow: 1px 1px 2px #000;
+    }
+  </style>
+  <script>
+    let balloons = [];
+    let score = 0;
+
+    function generateBalloons() {
+      const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan"];
+      const balloonContainer = document.getElementById("balloons");
+
+      for (let i = 0; i < 30; i++) {
+        const balloon = document.createElement("div");
+        balloon.className = `balloon ${colors[Math.floor(Math.random() * colors.length)]}`;
+        balloon.style.left = `${Math.random() * 100}%`;
+        balloon.style.animationDuration = `${Math.random() * 10 + 5}s`;
+        balloonContainer.appendChild(balloon);
+        balloons.push(balloon);
+      }
+    }
+
+    function countBalloons(color) {
+      const count = balloons.filter(balloon => balloon.classList.contains(color)).length;
+      const resultElement = document.getElementById("result");
+      resultElement.innerText = count > 0 ? `There are ${count} ${color} balloon(s)!` : 
+        `No ${color} balloons found!`;
+      if (count > 0) {
+        score++;
+        document.getElementById("score").innerText = `Score: ${score}`;
+      }
+    }
+
+    function handleInput() {
+      const input = document.getElementById("commandInput").value.trim().toLowerCase();
+      const colors = ["red", "blue", "green", "yellow", "purple", "orange", "pink", "cyan"];
+
+      // Check if the input matches the pattern "color.count()"
+      const regex = /^(\w+)\.count\(\)$/;
+      const match = input.match(regex);
+
+      if (match && colors.includes(match[1])) {
+        countBalloons(match[1]);
+      } else {
+        document.getElementById("result").innerText = "Invalid command! Try red.count(), blue.count(), etc.";
+      }
+    }
+
+    function resetGame() {
+      const balloonContainer = document.getElementById("balloons");
+      balloonContainer.innerHTML = "";
+      balloons = [];
+      generateBalloons();
+      document.getElementById("result").innerText = "";
+      score = 0;
+      document.getElementById("score").innerText = `Score: ${score}`;
+    }
+
+    window.onload = generateBalloons;
+  </script>
+</head>
+<body>
+  <h1>🎈 Balloon Counting Party Game 🎈</h1>
+  <div class="balloons" id="balloons"></div>
+  <div class="input-container">
+    <input type="text" id="commandInput" placeholder="Enter command (e.g., red.count())">
+    <button onclick="handleInput()">Submit</button>
+    <div class="result-box" id="result"></div>
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
+  <div class="score" id="score">Score: 0</div>
+  <div class="creator">Created by Swarna M🌷</div>
+</body>
+</html>
